@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Questa</string>
+    <string name="choose_test_button">Choose</string>
+    <string name="author">Author</string>
+    <string name="theme">Theme</string>
+    <string name="close_message">Do you really want to close the test?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

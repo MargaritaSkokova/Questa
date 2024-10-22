@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Куеста</string>
+    <string name="choose_test_button">Выбрать</string>
+    <string name="author">Автор</string>
+    <string name="theme">Тема</string>
+    <string name="close_message">Вы правда хотите покинуть тест?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+</resources>
