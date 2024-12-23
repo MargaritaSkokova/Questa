@@ -45,19 +45,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.maran.questa.ui.theme.QuestaTheme
 
-
+@Preview
 @Composable
 fun ChoiceScreen(
     modifier: Modifier = Modifier,
-    question: String,
-    choices: List<String>,
-    numberQuestion: Int,
-    currQuestion: Int,
-    name: String
+    question: String = "What is the first word in the chorus of `ChkChk Boom`?",
+    choices: List<String> = listOf(
+        "ChkChk",
+        "Boom",
+        "vamos",
+        "lobos",
+        "chaos",
+        "Boom",
+        "vamos",
+        "lobos",
+        "chaos",
+        "Boom",
+        "vamos",
+        "lobos",
+        "chaos"
+    ),
+    numberQuestion: Int = 10,
+    currQuestion: Int = 0,
+    name: String = "Name"
 ) {
     val show = remember {
         mutableStateOf(false)
@@ -129,7 +144,7 @@ fun ChoiceScreen(
             visible = close,
             enter = fadeIn(),
             exit = fadeOut()
-        ) {
+        )  {
             Box(modifier = modifier.fillMaxSize()) {
                 Column(
                     modifier = modifier
@@ -150,11 +165,9 @@ fun ChoiceScreen(
                         color = MaterialTheme.colorScheme.onPrimaryContainer
 
                     )
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly, modifier = modifier
-                            .fillMaxWidth()
-                            .height(30.dp)
-                    ) {
+                    Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = modifier
+                        .fillMaxWidth()
+                        .height(30.dp)) {
                         Button(onClick = { /*TODO*/ }) {
                             Text(text = stringResource(id = R.string.yes))
                         }
