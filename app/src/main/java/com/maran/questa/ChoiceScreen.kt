@@ -15,10 +15,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.selectableGroup
@@ -48,9 +48,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.maran.questa.ui.theme.QuestaTheme
 
-@Preview
 @Composable
 fun ChoiceScreen(
     modifier: Modifier = Modifier,
@@ -72,7 +72,8 @@ fun ChoiceScreen(
     ),
     numberQuestion: Int = 10,
     currQuestion: Int = 0,
-    name: String = "Name"
+    name: String = "Name",
+    navController: NavController
 ) {
     val show = remember {
         mutableStateOf(false)
@@ -101,11 +102,11 @@ fun ChoiceScreen(
                 Spacer(modifier = Modifier.weight(1f))
             }
             QuestionElement(text = question)
-            ChoiceList(choices = choices, show = show, modifier = Modifier.weight(1f))
+            ChoiceList(choices = choices, show = show, modifier = Modifier.weight(1f), isDisabled = close)
 
             Row(horizontalArrangement = Arrangement.Start) {
                 Row(Modifier.weight(1f)) {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { /*TODO*/ }, enabled = !close) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null
@@ -130,7 +131,7 @@ fun ChoiceScreen(
                     enter = scaleIn()
                 ) {
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.End) {
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = { /*TODO*/ }, enabled = !close) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                 contentDescription = null
@@ -167,11 +168,11 @@ fun ChoiceScreen(
                     )
                     Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = modifier
                         .fillMaxWidth()
-                        .height(30.dp)) {
-                        Button(onClick = { /*TODO*/ }) {
+                        .wrapContentHeight()) {
+                        Button(onClick = { /*TODO*/ }, modifier = modifier.wrapContentSize()) {
                             Text(text = stringResource(id = R.string.yes))
                         }
-                        Button(onClick = { close = false }) {
+                        Button(onClick = { close = false }, modifier = modifier.wrapContentSize()) {
                             Text(text = stringResource(id = R.string.no))
                         }
                     }
@@ -214,7 +215,8 @@ fun ChoiceElement(
     text: String,
     selected: MutableState<Int>,
     index: Int,
-    show: MutableState<Boolean>
+    show: MutableState<Boolean>,
+    isDisabled: Boolean
 ) {
     QuestaTheme {
         Row(
@@ -225,13 +227,14 @@ fun ChoiceElement(
                 .wrapContentHeight()
                 .clip(RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainer)
-                .clickable {
+                .clickable(enabled = !isDisabled) {
                     selected.value = index
                     show.value = true
                 }
         ) {
             RadioButton(
                 selected = (selected.value == index),
+                enabled = !isDisabled,
                 onClick = {
                     selected.value = index
                     show.value = true
@@ -259,7 +262,8 @@ fun ChoiceElement(
 fun ChoiceList(
     modifier: Modifier = Modifier,
     choices: List<String>,
-    show: MutableState<Boolean>
+    show: MutableState<Boolean>,
+    isDisabled: Boolean
 ) {
     val state = remember {
         mutableStateOf(-1)
@@ -270,9 +274,10 @@ fun ChoiceList(
                 .selectableGroup(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp),
+            userScrollEnabled = !isDisabled
         ) {
             itemsIndexed(choices) { index, item ->
-                ChoiceElement(text = item, selected = state, index = index, show = show)
+                ChoiceElement(text = item, selected = state, index = index, show = show, isDisabled = isDisabled)
             }
         }
     }

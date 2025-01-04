@@ -42,9 +42,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.maran.questa.navigation.Screen
 import com.maran.questa.ui.theme.QuestaTheme
 
-@Preview
 @Composable
 fun TestsScreen(
     modifier: Modifier = Modifier,
@@ -89,14 +90,16 @@ fun TestsScreen(
             "skz",
             true, "Personality"
         )
-    )
+    ),
+    navController: NavController
 ) {
     LazyColumn(
         modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(tests) { item ->
             TestElement(
-                test = item
+                test = item,
+                navController = navController
             )
         }
     }
@@ -105,7 +108,7 @@ fun TestsScreen(
 
 @Composable
 fun TestElement(
-    modifier: Modifier = Modifier, test: Test
+    modifier: Modifier = Modifier, test: Test, navController: NavController
 ) {
     val show = rememberSaveable {
         mutableStateOf(false)
@@ -185,7 +188,7 @@ fun TestElement(
                     textAlign = TextAlign.Center
                 )
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = { navController.navigate(route = Screen.Choice.route) },
                     modifier = modifier
                         .padding(8.dp)
                         .align(Alignment.CenterHorizontally)
