@@ -1,28 +1,30 @@
 package com.maran.questa.network.apis
 
 import com.maran.questa.network.models.Model.*
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import java.util.UUID
 
-interface ThemeApi : IApi<Theme> {
+interface ThemeApi {
     @GET("theme/all")
-    override suspend fun getAll(): List<Theme>
+    suspend fun getAll(): List<Theme>
 
     @GET("theme/{id}")
-    override suspend fun getById(id: UUID): Theme?
+    suspend fun getById(@Path("id") id: UUID): Theme?
 
     @GET("theme/name/{name}")
-    suspend fun getByName(name: String): List<Theme>
+    fun getByName(@Path("name") name: String): List<Theme>
 
     @POST("theme")
-    override suspend fun insert(value: Theme): Theme?
+    suspend fun insert(@Body value: Theme): Theme?
 
     @PUT("theme")
-    override suspend fun update(value: Theme): Theme?
+    suspend fun update(@Body value: Theme): Theme?
 
     @DELETE("theme/{id}")
-    override suspend fun delete(id: UUID)
+    suspend fun delete(@Path("id") id: UUID)
 }

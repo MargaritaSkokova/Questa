@@ -1,28 +1,30 @@
 package com.maran.questa.network.apis
 
 import com.maran.questa.network.models.Model.*
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import java.util.UUID
 
-interface QuestionApi : IApi<Question> {
+interface QuestionApi {
     @GET("question/all")
-    override suspend fun getAll(): List<Question>
+    suspend fun getAll(): List<Question>
 
     @GET("question/{id}")
-    override suspend fun getById(id: UUID): Question?
+    suspend fun getById(@Path("id") id: UUID): Question?
 
     @GET("question/test")
-    suspend fun getByTest(test: Test): List<Question>
+    suspend fun getByTest(@Body test: Test): List<Question>
 
     @POST("question")
-    override suspend fun insert(value: Question): Question?
+    suspend fun insert(@Body value: Question): Question?
 
     @PUT("question")
-    override suspend fun update(value: Question): Question?
+    suspend fun update(@Body value: Question): Question?
 
     @DELETE("question/{id}")
-    override suspend fun delete(id: UUID)
+    suspend fun delete(@Path("id") id: UUID)
 }
