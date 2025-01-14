@@ -12,7 +12,8 @@ sealed class Model {
         val id: UUID,
         val question: Question,
         val text: String,
-        val isCorrect: Boolean
+        val isCorrect: Boolean?,
+        val personality: String?
     ) : Model()
 
     @Serializable
@@ -29,7 +30,9 @@ sealed class Model {
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val test: Test,
-        val resultMessage: String
+        val resultMessage: String,
+        val maxPoints: Int?,
+        val personality: String?
     ) : Model()
 
     @Serializable
@@ -46,7 +49,8 @@ sealed class Model {
         val type: String,
         val name: String,
         val author: User,
-        val theme: Theme
+        val theme: Theme,
+        val description: String,
     ) : Model()
 
     @Serializable

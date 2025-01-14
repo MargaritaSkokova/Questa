@@ -31,76 +31,41 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.maran.questa.navigation.Screen
+import com.maran.questa.network.models.Model
 import com.maran.questa.ui.theme.QuestaTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun TestsScreen(
     modifier: Modifier = Modifier,
-    tests: List<Test> = listOf(
-        Test("Ate comeback",
-            "Test your knowledge about Ate comeback of skz",
-            "maran",
-            "skz",
-            true, "Personality"),
-        Test(
-            "5-star comeback",
-            "Test your knowledge about 5-star comeback of skz",
-            "maran",
-            "skz",
-            false, "Personality"
-        ),
-        Test(
-            "Rock-star comeback",
-            "Test your knowledge about Rock-star comeback of skz",
-            "maran",
-            "skz",
-            false, "Personality"
-        ),
-        Test(
-            "Noeasy comeback",
-            "Test your knowledge about Noeasy comeback of skz",
-            "maran",
-            "skz",
-            false, "Personality"
-        ),
-        Test(
-            "MAXIDENT comeback",
-            "Test your knowledge about MAXIDENT comeback of skz",
-            "maran",
-            "skz",
-            false, "Personality"
-        ),
-        Test(
-            "Oddinary comeback",
-            "Test your knowledge about Oddinary comeback of skz",
-            "maran",
-            "skz",
-            true, "Personality"
-        )
-    ),
-    navController: NavController
+    navController: NavController,
+    testsViewModel: TestsViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     LazyColumn(
         modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(tests) { item ->
-            TestElement(
-                test = item,
-                navController = navController
-            )
+        coroutineScope.launch {
+            val tests: List<Model.Test> = testsViewModel.getAllTests()
+            items(tests) { item ->
+                TestElement(
+                    test = item,
+                    navController = navController
+                )
+            }
         }
     }
 }
@@ -108,7 +73,7 @@ fun TestsScreen(
 
 @Composable
 fun TestElement(
-    modifier: Modifier = Modifier, test: Test, navController: NavController
+    modifier: Modifier = Modifier, test: Model.Test, navController: NavController
 ) {
     val show = rememberSaveable {
         mutableStateOf(false)
@@ -135,7 +100,8 @@ fun TestElement(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontSize = 20.sp
                 )
-                if (test.done) {
+                //TODO:
+                if (true) {
                     Icon(
                         imageVector = Icons.Rounded.Check,
                         contentDescription = null,
@@ -167,14 +133,24 @@ fun TestElement(
             if (show.value) {
                 Text(
                     text = stringResource(id = R.string.author) + ": ${test.author}",
-                    modifier = modifier.padding(start = 16.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
+                    modifier = modifier.padding(
+                        start = 16.dp,
+                        top = 8.dp,
+                        end = 8.dp,
+                        bottom = 8.dp
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontSize = 20.sp
                 )
                 Text(
                     text = stringResource(id = R.string.theme) + ": ${test.theme}",
-                    modifier = modifier.padding(start = 16.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
+                    modifier = modifier.padding(
+                        start = 16.dp,
+                        top = 8.dp,
+                        end = 8.dp,
+                        bottom = 8.dp
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontSize = 20.sp
