@@ -6,4 +6,9 @@
     <string name="close_message">Do you really want to close the test?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="moto">Your quest for knowledge!</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="login">Username</string>
+    <string name="password">Password</string>
 </resources>

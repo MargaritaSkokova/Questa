@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
+import javax.inject.Inject
 
 data class ChoiceState(
     val test: Model.Test? = null,
@@ -36,7 +37,7 @@ data class ChoiceState(
 )
 
 @HiltViewModel
-class ChoiceViewModel(
+class ChoiceViewModel @Inject constructor(
     private val preferences: PreferencesProvider
 ) : ViewModel() {
     private val coroutineScope: CoroutineScope =

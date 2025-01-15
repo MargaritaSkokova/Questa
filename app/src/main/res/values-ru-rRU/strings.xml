@@ -7,4 +7,9 @@
     <string name="close_message">Вы правда хотите покинуть тест?</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
+    <string name="moto">Твой путь к знаниям!</string>
+    <string name="sign_in">Войти</string>
+    <string name="sign_up">Зарегистрироваться</string>
+    <string name="login">Имя пользователя</string>
+    <string name="password">Пароль</string>
 </resources>
