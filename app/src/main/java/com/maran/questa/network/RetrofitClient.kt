@@ -15,12 +15,14 @@ class RetrofitClient {
         fun retrofitClient(apiKey: String): Retrofit = Retrofit.Builder()
             .baseUrl("http://x.x.x.x:8080/")
             .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(ResultCallAdapterFactory())
             .client(okHttpClient(apiKey).build())
             .build()
 
         fun retrofitClientAuthentication(): Retrofit = Retrofit.Builder()
             .baseUrl("http://x.x.x.x:8080/")
             .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(ResultCallAdapterFactory())
             .build()
 
         private fun okHttpClient(apiKey: String) = OkHttpClient().newBuilder()

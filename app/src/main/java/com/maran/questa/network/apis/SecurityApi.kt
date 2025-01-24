@@ -6,5 +6,5 @@ import retrofit2.http.POST
 
 interface SecurityApi {
     @POST("/login")
-    suspend fun login(@Body authentication: Authentication): String
+    suspend fun login(@Body authentication: Authentication): kotlin.Result<String>
 }

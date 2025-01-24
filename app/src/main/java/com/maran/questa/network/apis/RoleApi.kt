@@ -11,20 +11,20 @@ import java.util.UUID
 
 interface RoleApi {
     @GET("role/all")
-    suspend fun getAll(): List<Role>
+    suspend fun getAll(): kotlin.Result<List<Role>>
 
     @GET("role/{id}")
-    suspend fun getById(@Path("id") id: UUID): Role?
+    suspend fun getById(@Path("id") id: UUID): kotlin.Result<Role?>
 
     @GET("role/name/{name}")
-    suspend fun getByName(@Path("name") name: String): List<Role>
+    suspend fun getByName(@Path("name") name: String): kotlin.Result<List<Role>>
 
     @POST("role")
-    suspend fun insert(@Body value: Role): Role?
+    suspend fun insert(@Body value: Role): kotlin.Result<Role?>
 
     @PUT("role")
-    suspend fun update(@Body value: Role): Role?
+    suspend fun update(@Body value: Role): kotlin.Result<Role?>
 
     @DELETE("role/{id}")
-    suspend fun delete(@Path("id") id: UUID)
+    suspend fun delete(@Path("id") id: UUID): kotlin.Result<Any>
 }

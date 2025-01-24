@@ -11,20 +11,20 @@ import java.util.UUID
 
 interface ThemeApi {
     @GET("theme/all")
-    suspend fun getAll(): List<Theme>
+    suspend fun getAll(): kotlin.Result<List<Theme>>
 
     @GET("theme/{id}")
-    suspend fun getById(@Path("id") id: UUID): Theme?
+    suspend fun getById(@Path("id") id: UUID): kotlin.Result<Theme?>
 
     @GET("theme/name/{name}")
-    fun getByName(@Path("name") name: String): List<Theme>
+    fun getByName(@Path("name") name: String): kotlin.Result<List<Theme>>
 
     @POST("theme")
-    suspend fun insert(@Body value: Theme): Theme?
+    suspend fun insert(@Body value: Theme): kotlin.Result<Theme?>
 
     @PUT("theme")
-    suspend fun update(@Body value: Theme): Theme?
+    suspend fun update(@Body value: Theme): kotlin.Result<Theme?>
 
     @DELETE("theme/{id}")
-    suspend fun delete(@Path("id") id: UUID)
+    suspend fun delete(@Path("id") id: UUID): kotlin.Result<Any>
 }

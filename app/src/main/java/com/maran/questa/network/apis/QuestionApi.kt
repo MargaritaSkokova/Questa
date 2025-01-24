@@ -11,20 +11,20 @@ import java.util.UUID
 
 interface QuestionApi {
     @GET("question/all")
-    suspend fun getAll(): List<Question>
+    suspend fun getAll(): kotlin.Result<List<Question>>
 
     @GET("question/{id}")
-    suspend fun getById(@Path("id") id: UUID): Question?
+    suspend fun getById(@Path("id") id: UUID): kotlin.Result<Question?>
 
     @GET("question/test")
-    suspend fun getByTest(@Body test: Test): List<Question>
+    suspend fun getByTest(@Body test: Test): kotlin.Result<List<Question>>
 
     @POST("question")
-    suspend fun insert(@Body value: Question): Question?
+    suspend fun insert(@Body value: Question): kotlin.Result<Question?>
 
     @PUT("question")
-    suspend fun update(@Body value: Question): Question?
+    suspend fun update(@Body value: Question): kotlin.Result<Question?>
 
     @DELETE("question/{id}")
-    suspend fun delete(@Path("id") id: UUID)
+    suspend fun delete(@Path("id") id: UUID): kotlin.Result<Any>
 }

@@ -11,20 +11,20 @@ import java.util.UUID
 
 interface ResultApi {
     @GET("result/all")
-    suspend fun getAll(): List<Result>
+    suspend fun getAll(): kotlin.Result<List<Result>>
 
     @GET("result/{id}")
-    suspend fun getById(@Path("id") id: UUID): Result?
+    suspend fun getById(@Path("id") id: UUID): kotlin.Result<Result?>
 
     @GET("result/test")
-    suspend fun getByTest(@Body test: Test): List<Result>
+    suspend fun getByTest(@Body test: Test): kotlin.Result<List<Result>>
 
     @POST("result")
-    suspend fun insert(@Body value: Result): Result?
+    suspend fun insert(@Body value: Result): kotlin.Result<Result?>
 
     @PUT("result")
-    suspend fun update(@Body value: Result): Result?
+    suspend fun update(@Body value: Result): kotlin.Result<Result?>
 
     @DELETE("result/{id}")
-    suspend fun delete(@Path("id")  id: UUID)
+    suspend fun delete(@Path("id")  id: UUID): kotlin.Result<Any>
 }

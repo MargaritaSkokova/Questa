@@ -14,19 +14,18 @@ val provider = GoogleFont.Provider(
 
 val bodyFontFamily = FontFamily(
     Font(
-        googleFont = GoogleFont("Shanti"),
+        googleFont = GoogleFont("Jost"),
         fontProvider = provider,
     )
 )
 
 val displayFontFamily = FontFamily(
     Font(
-        googleFont = GoogleFont("Amarante"),
+        googleFont = GoogleFont("Viaoda Libre"),
         fontProvider = provider,
     )
 )
 
-// Default Material 3 typography values
 val baseline = Typography()
 
 val AppTypography = Typography(

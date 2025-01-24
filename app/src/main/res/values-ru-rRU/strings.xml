@@ -12,4 +12,7 @@
     <string name="sign_up">Зарегистрироваться</string>
     <string name="login">Имя пользователя</string>
     <string name="password">Пароль</string>
+    <string name="error_login">Произошла ошибка, попробуйте снова!</string>
+    <string name="text_field_username_empty">Введите имя пользователя</string>
+    <string name="text_field_password_empty">Введите пароль</string>
 </resources>

@@ -11,26 +11,26 @@ import java.util.UUID
 
 interface TestApi {
     @GET("test/all")
-    suspend fun getAll(): List<Test>
+    suspend fun getAll(): kotlin.Result<List<Test>>
 
     @GET("test/{id}")
-    suspend fun getById(@Path("id") id: UUID): Test?
+    suspend fun getById(@Path("id") id: UUID): kotlin.Result<Test?>
 
     @GET("test/theme")
-    suspend fun getByTheme(@Body theme: Theme): List<Test>
+    suspend fun getByTheme(@Body theme: Theme): kotlin.Result<List<Test>>
 
     @GET("test/author")
-    suspend fun getByAuthor(@Body author: User): List<Test>
+    suspend fun getByAuthor(@Body author: User): kotlin.Result<List<Test>>
 
     @GET("test/type/{type}")
-    suspend fun getByType(@Path("type") type: String): List<Test>
+    suspend fun getByType(@Path("type") type: String): kotlin.Result<List<Test>>
 
     @POST("test")
-    suspend fun insert(@Body value: Test): Test?
+    suspend fun insert(@Body value: Test): kotlin.Result<Test?>
 
     @PUT("test")
-    suspend fun update(@Body value: Test): Test?
+    suspend fun update(@Body value: Test): kotlin.Result<Test?>
 
     @DELETE("test/{id}")
-    suspend fun delete(@Path("id") id: UUID)
+    suspend fun delete(@Path("id") id: UUID): kotlin.Result<Any>
 }

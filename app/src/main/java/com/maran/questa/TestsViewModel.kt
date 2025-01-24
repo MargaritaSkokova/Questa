@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import javax.inject.Inject
@@ -43,11 +44,6 @@ class TestsViewModel @Inject constructor(
         val securityService = retrofitAuth.create(SecurityApi::class.java)
 
         job = coroutineScope.launch {
-            val token = securityService.login(Model.Authentication("xxx", "xxx"))
-            with(preferences.sharedPreferences.edit()) {
-                putString("token", token)
-                apply()
-            }
 
             retrofit =
                 RetrofitClient.retrofitClient(
@@ -65,6 +61,10 @@ class TestsViewModel @Inject constructor(
 
     suspend fun getAllTests(): List<Model.Test> {
         job.join()
-        return coroutineScope.async { testApi.getAll() }.await()
+        return coroutineScope.async { testApi.getAll().getOrDefault(listOf()) }.await()
+    }
+
+    override fun onCleared() {
+        coroutineScope.cancel()
     }
 }
