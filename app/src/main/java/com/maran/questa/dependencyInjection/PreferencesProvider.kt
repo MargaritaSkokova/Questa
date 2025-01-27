@@ -1,4 +1,4 @@
-package com.maran.questa
+package com.maran.questa.dependencyInjection
 
 import android.content.SharedPreferences
 import javax.inject.Inject

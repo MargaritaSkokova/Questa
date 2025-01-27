@@ -1,5 +1,6 @@
 package com.maran.questa
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,13 +39,21 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.maran.questa.navigation.Screen
 import com.maran.questa.ui.theme.QuestaTheme
+import com.maran.questa.viewModels.LoginStatus
+import com.maran.questa.viewModels.LoginViewModel
+import com.maran.questa.viewModels.VerificationError
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     val showButtons = remember { mutableStateOf(true) }
     val showSignIn = remember { mutableStateOf(false) }
     val showSignUp = remember { mutableStateOf(false) }
@@ -68,36 +78,47 @@ fun LoginScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            if (showButtons.value) {
-                Button(
-                    onClick = { showButtons.value = false; showSignIn.value = true },
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .wrapContentSize()
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.sign_in),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-                Button(
-                    onClick = { showButtons.value = false; showSignUp.value = true },
-                    modifier = Modifier
-                        .wrapContentSize()
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.sign_up),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
-            if (showSignIn.value || showSignUp.value) {
-                AnimatedContent(
-                    targetState = loginViewModel.loginStatus,
-                    label = "animated content"
-                ) { targetStatus ->
-                    when (targetStatus) {
-                        "not_logged" -> {
+            AnimatedContent(
+                targetState = loginViewModel.loginStatus,
+                label = "animated content"
+            ) { targetStatus ->
+                when (targetStatus) {
+                    LoginStatus.NOT_LOGGED -> {
+                        if (showButtons.value) {
+                            Column(
+                                modifier = Modifier
+                                    .wrapContentSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Button(
+                                    onClick = {
+                                        showButtons.value = false; showSignIn.value = true
+                                    },
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .wrapContentSize()
+                                ) {
+                                    Text(
+                                        text = stringResource(id = R.string.sign_in),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                    )
+                                }
+                                Button(
+                                    onClick = {
+                                        showButtons.value = false; showSignUp.value = true
+                                    },
+                                    modifier = Modifier
+                                        .wrapContentSize()
+                                ) {
+                                    Text(
+                                        text = stringResource(id = R.string.sign_up),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                    )
+                                }
+                            }
+                        }
+                        if (showSignIn.value || showSignUp.value) {
                             LoginFields(
                                 modifier,
                                 loginViewModel,
@@ -106,44 +127,46 @@ fun LoginScreen(
                                 setPasswordVisible
                             )
                         }
+                    }
 
-                        "in_process" -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(64.dp).padding(8.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    LoginStatus.IN_PROCESS -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .width(64.dp)
+                                .padding(8.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        )
+                    }
+
+                    LoginStatus.SUCCESS -> {
+                        navController.navigate(route = Screen.Tests.route)
+                    }
+
+                    else -> {
+                        Column(
+                            modifier = Modifier
+                                .wrapContentSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            LoginFields(
+                                modifier,
+                                loginViewModel,
+                                showSignIn,
+                                passwordVisible,
+                                setPasswordVisible
                             )
-                        }
-
-                        "success" -> {
-                            navController.navigate(route = Screen.Tests.route)
-                        }
-
-                        else -> {
-                            Column(
-                                modifier = Modifier
-                                    .wrapContentSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                LoginFields(
-                                    modifier,
-                                    loginViewModel,
-                                    showSignIn,
-                                    passwordVisible,
-                                    setPasswordVisible
-                                )
-                                Text(
-                                    text = stringResource(R.string.error_login),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                                Text(
-                                    text = loginViewModel.loginMessage,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
+                            Text(
+                                text = stringResource(R.string.error_login),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Text(
+                                text = loginViewModel.loginMessage,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.error
+                            )
                         }
                     }
                 }
@@ -177,7 +200,7 @@ fun LoginFields(
             )
             },
             maxLines = 1,
-            label = { Text("Username") },
+            label = { Text(stringResource(R.string.login)) },
             supportingText = {
                 Row {
                     Text(
@@ -197,7 +220,7 @@ fun LoginFields(
                 password
             )
             },
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.password)) },
             maxLines = 1,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -225,37 +248,76 @@ fun LoginFields(
             )
 
         if (showSignIn.value) {
-            Button(
-                onClick = { loginViewModel.login() },
-                enabled = !loginViewModel.isErrorUsername &&
+            ButtonSignInSignUp(
+                isEnabled = !loginViewModel.isErrorUsername &&
                         !loginViewModel.isErrorPassword &&
                         loginViewModel.username.isNotEmpty() &&
                         loginViewModel.password.isNotEmpty(),
-                modifier = Modifier
-                    .padding(8.dp)
-                    .wrapContentSize()
-            ) {
-                Text(
-                    text = stringResource(id = R.string.sign_in),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
+                action = { loginViewModel.login() }, text = stringResource(id = R.string.sign_in)
+            )
         } else {
-            Button(
-                onClick = { /*TODO*/ },
-                enabled = !loginViewModel.isErrorUsername &&
-                        !loginViewModel.isErrorPassword &&
-                        loginViewModel.username.isNotEmpty() &&
-                        loginViewModel.password.isNotEmpty(),
+            TextField(
                 modifier = Modifier
                     .padding(8.dp)
-                    .wrapContentSize()
-            ) {
-                Text(
-                    text = stringResource(id = R.string.sign_up),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
+                    .clip(RoundedCornerShape(8.dp)),
+                value = loginViewModel.passwordVerification,
+                onValueChange = { password ->
+                    loginViewModel.updatePasswordVerification(password);
+                    loginViewModel.validatePasswordSignUp(password, loginViewModel.password)
+                },
+                label = { Text(stringResource(R.string.password_verification)) },
+                maxLines = 1,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                supportingText = {
+                    Row {
+                        Text(
+                            if (loginViewModel.isErrorPasswordVerification) {
+                                if (loginViewModel.getVerificationError() == VerificationError.EMPTY) {
+                                    stringResource(R.string.text_field_password_verification_empty)
+                                } else if (loginViewModel.getVerificationError() == VerificationError.DIFFERENT) {
+                                    stringResource(R.string.text_field_password_verification_different)
+                                } else {
+                                    ""
+                                }
+                            } else {
+                                ""
+                            },
+                            Modifier.clearAndSetSemantics {})
+                        Spacer(Modifier.weight(1f))
+                    }
+                },
+                isError = loginViewModel.isErrorPasswordVerification,
+            )
+            ButtonSignInSignUp(
+                isEnabled = !loginViewModel.isErrorUsername &&
+                        !loginViewModel.isErrorPassword && !loginViewModel.isErrorPasswordVerification &&
+                        loginViewModel.username.isNotEmpty() &&
+                        loginViewModel.password.isNotEmpty() &&
+                        loginViewModel.passwordVerification.isNotEmpty(),
+                action = { loginViewModel.signUp() }, text = stringResource(id = R.string.sign_up)
+            )
         }
+    }
+}
+
+@Composable
+fun ButtonSignInSignUp(
+    modifier: Modifier = Modifier,
+    isEnabled: Boolean,
+    action: () -> Unit,
+    text: String
+) {
+    Button(
+        onClick = action,
+        enabled = isEnabled,
+        modifier = Modifier
+            .padding(8.dp)
+            .wrapContentSize()
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+        )
     }
 }

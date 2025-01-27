@@ -1,7 +1,8 @@
-package com.maran.questa
+package com.maran.questa.viewModels
 
 import android.security.keystore.UserNotAuthenticatedException
 import androidx.lifecycle.ViewModel
+import com.maran.questa.dependencyInjection.PreferencesProvider
 import com.maran.questa.network.RetrofitClient
 import com.maran.questa.network.apis.AnswerApi
 import com.maran.questa.network.apis.QuestionApi

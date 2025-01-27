@@ -45,6 +45,7 @@ import androidx.navigation.NavController
 import com.maran.questa.navigation.Screen
 import com.maran.questa.network.models.Model
 import com.maran.questa.ui.theme.QuestaTheme
+import com.maran.questa.viewModels.TestsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -54,17 +55,25 @@ fun TestsScreen(
     testsViewModel: TestsViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
-
-    LazyColumn(
-        modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        coroutineScope.launch {
-            val tests: List<Model.Test> = testsViewModel.getAllTests()
-            items(tests) { item ->
-                TestElement(
-                    test = item,
-                    navController = navController
-                )
+    QuestaTheme {
+        Column {
+            Text(
+                modifier = modifier.padding(16.dp).align(Alignment.CenterHorizontally),
+                text = stringResource(R.string.tests),
+                style = MaterialTheme.typography.headlineLarge
+            )
+            LazyColumn(
+                modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                coroutineScope.launch {
+                    val tests: List<Model.Test> = testsViewModel.getAllTests()
+                    items(tests) { item ->
+                        TestElement(
+                            test = item,
+                            navController = navController
+                        )
+                    }
+                }
             }
         }
     }

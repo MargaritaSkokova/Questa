@@ -27,4 +27,7 @@ interface UserApi {
 
     @DELETE("user/{id}")
     suspend fun delete(@Path("id") id: UUID): kotlin.Result<Any>
+
+    @GET("/check")
+    suspend fun check(): kotlin.Result<Any>
 }

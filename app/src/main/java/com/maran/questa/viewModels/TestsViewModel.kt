@@ -1,13 +1,13 @@
-package com.maran.questa
+package com.maran.questa.viewModels
 
 import android.security.keystore.UserNotAuthenticatedException
 import androidx.lifecycle.ViewModel
+import com.maran.questa.dependencyInjection.PreferencesProvider
 import com.maran.questa.network.RetrofitClient
 import com.maran.questa.network.apis.AnswerApi
 import com.maran.questa.network.apis.QuestionApi
 import com.maran.questa.network.apis.ResultApi
 import com.maran.questa.network.apis.RoleApi
-import com.maran.questa.network.apis.SecurityApi
 import com.maran.questa.network.apis.TestApi
 import com.maran.questa.network.apis.ThemeApi
 import com.maran.questa.network.apis.UserApi
@@ -15,11 +15,9 @@ import com.maran.questa.network.models.Model
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import javax.inject.Inject
 
@@ -29,7 +27,6 @@ class TestsViewModel @Inject constructor(
 ) : ViewModel() {
     private val coroutineScope: CoroutineScope =
         CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    lateinit var job: Job
     private lateinit var retrofit: Retrofit
     private lateinit var answerApi: AnswerApi
     private lateinit var questionApi: QuestionApi
@@ -40,27 +37,20 @@ class TestsViewModel @Inject constructor(
     private lateinit var userApi: UserApi
 
     init {
-        val retrofitAuth = RetrofitClient.retrofitClientAuthentication()
-        val securityService = retrofitAuth.create(SecurityApi::class.java)
-
-        job = coroutineScope.launch {
-
-            retrofit =
-                RetrofitClient.retrofitClient(
-                    preferences.sharedPreferences.getString("token", "") ?: throw UserNotAuthenticatedException()
-                )
-            answerApi = retrofit.create(AnswerApi::class.java)
-            questionApi = retrofit.create(QuestionApi::class.java)
-            resultApi = retrofit.create(ResultApi::class.java)
-            roleApi = retrofit.create(RoleApi::class.java)
-            testApi = retrofit.create(TestApi::class.java)
-            themeApi = retrofit.create(ThemeApi::class.java)
-            userApi = retrofit.create(UserApi::class.java)
-        }
+        retrofit =
+            RetrofitClient.retrofitClient(
+                preferences.sharedPreferences.getString("token", "") ?: throw UserNotAuthenticatedException()
+            )
+        answerApi = retrofit.create(AnswerApi::class.java)
+        questionApi = retrofit.create(QuestionApi::class.java)
+        resultApi = retrofit.create(ResultApi::class.java)
+        roleApi = retrofit.create(RoleApi::class.java)
+        testApi = retrofit.create(TestApi::class.java)
+        themeApi = retrofit.create(ThemeApi::class.java)
+        userApi = retrofit.create(UserApi::class.java)
     }
 
     suspend fun getAllTests(): List<Model.Test> {
-        job.join()
         return coroutineScope.async { testApi.getAll().getOrDefault(listOf()) }.await()
     }
 

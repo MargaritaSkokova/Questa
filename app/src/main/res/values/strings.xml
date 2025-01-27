@@ -14,4 +14,8 @@
     <string name="error_login">Error occurred, please, try again!</string>
     <string name="text_field_username_empty">Enter username</string>
     <string name="text_field_password_empty">Enter password</string>
+    <string name="text_field_password_verification_empty">Enter password again</string>
+    <string name="text_field_password_verification_different">Passwords are not equal</string>
+    <string name="password_verification">Password again</string>
+    <string name="tests">Tests</string>
 </resources>
