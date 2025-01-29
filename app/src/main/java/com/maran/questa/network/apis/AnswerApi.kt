@@ -16,8 +16,8 @@ interface AnswerApi {
     @GET("answer/{id}")
     suspend fun getById(@Path("id") id: UUID): kotlin.Result<Answer?>
 
-    @GET("answer/question")
-    suspend fun getByQuestion(@Body question: Question): kotlin.Result<List<Answer>>
+    @GET("answer/question/{id}")
+    suspend fun getByQuestion(@Path("id") id: UUID): kotlin.Result<List<Answer>>
 
     @POST("answer")
     suspend fun insert(@Body value: Answer): kotlin.Result<Answer?>

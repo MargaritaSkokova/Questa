@@ -36,14 +36,14 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavController
 import com.maran.questa.navigation.Screen
 import com.maran.questa.ui.theme.QuestaTheme
 import com.maran.questa.viewModels.LoginStatus
 import com.maran.questa.viewModels.LoginViewModel
 import com.maran.questa.viewModels.VerificationError
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -58,6 +58,10 @@ fun LoginScreen(
     val showSignIn = remember { mutableStateOf(false) }
     val showSignUp = remember { mutableStateOf(false) }
     val (passwordVisible, setPasswordVisible) = remember { mutableStateOf(false) }
+
+    LifecycleEventEffect(Lifecycle.Event.ON_START) {
+        loginViewModel.check()
+    }
 
     QuestaTheme {
         Column(

@@ -105,7 +105,6 @@ class LoginViewModel @Inject constructor(
             RetrofitClient.retrofitClient(preferences.sharedPreferences.getString("token", "")!!)
         userService = retrofit.create(UserApi::class.java)
         roleService = retrofit.create(RoleApi::class.java)
-        check()
     }
 
     fun login() {
@@ -129,16 +128,14 @@ class LoginViewModel @Inject constructor(
     fun signUp() {
         coroutineScope.launch {
             loginStatus = LoginStatus.IN_PROCESS
-            val role = roleService.getByName("basic").onSuccess { it ->
-                userService.insert(Model.User(UUID.randomUUID(), username, it[0], password))
-                    .onSuccess {
-                        loginStatus = LoginStatus.SUCCESS
-                    }
-                    .onFailure {
-                        loginStatus = LoginStatus.FAILURE
-                        loginMessage = it.localizedMessage
-                    }
-            }
+            userService.insert(Model.SignUp(UUID.randomUUID(), username, "basic", password))
+                .onSuccess {
+                    loginStatus = LoginStatus.SUCCESS
+                }
+                .onFailure {
+                    loginStatus = LoginStatus.FAILURE
+                    loginMessage = it.localizedMessage
+                }
         }
     }
 

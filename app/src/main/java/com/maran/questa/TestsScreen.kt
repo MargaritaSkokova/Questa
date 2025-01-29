@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,8 +48,8 @@ import androidx.navigation.NavController
 import com.maran.questa.navigation.Screen
 import com.maran.questa.network.models.Model
 import com.maran.questa.ui.theme.QuestaTheme
+import com.maran.questa.viewModels.TestStatus
 import com.maran.questa.viewModels.TestsViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun TestsScreen(
@@ -54,24 +57,59 @@ fun TestsScreen(
     navController: NavController,
     testsViewModel: TestsViewModel = hiltViewModel()
 ) {
-    val coroutineScope = rememberCoroutineScope()
     QuestaTheme {
         Column {
             Text(
-                modifier = modifier.padding(16.dp).align(Alignment.CenterHorizontally),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth(),
                 text = stringResource(R.string.tests),
-                style = MaterialTheme.typography.headlineLarge
+                style = MaterialTheme.typography.headlineLarge,
+                textAlign = TextAlign.Center
             )
-            LazyColumn(
-                modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                coroutineScope.launch {
-                    val tests: List<Model.Test> = testsViewModel.getAllTests()
-                    items(tests) { item ->
-                        TestElement(
-                            test = item,
-                            navController = navController
-                        )
+            AnimatedContent(
+                targetState = testsViewModel.testStatus,
+                label = "animated content"
+            ) { targetStatus ->
+                when (targetStatus) {
+                    TestStatus.SUCCESS -> {
+                        LazyColumn(
+                            Modifier.padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            items(testsViewModel.tests) { item ->
+                                TestElement(
+                                    test = item,
+                                    navController = navController
+                                )
+                            }
+
+                        }
+                    }
+
+                    TestStatus.IN_PROCESS -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .width(64.dp)
+                                    .padding(8.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+                    }
+
+                    TestStatus.FAILURE -> {
+                        // todo
+                    }
+
+                    else -> {
+
                     }
                 }
             }

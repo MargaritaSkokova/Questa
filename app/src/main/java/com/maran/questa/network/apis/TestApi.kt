@@ -16,11 +16,11 @@ interface TestApi {
     @GET("test/{id}")
     suspend fun getById(@Path("id") id: UUID): kotlin.Result<Test?>
 
-    @GET("test/theme")
-    suspend fun getByTheme(@Body theme: Theme): kotlin.Result<List<Test>>
+    @GET("test/theme/{name}")
+    suspend fun getByTheme(@Path("name") type: String): kotlin.Result<List<Test>>
 
-    @GET("test/author")
-    suspend fun getByAuthor(@Body author: User): kotlin.Result<List<Test>>
+    @GET("test/author/{name}")
+    suspend fun getByAuthor(@Path("name") type: String): kotlin.Result<List<Test>>
 
     @GET("test/type/{type}")
     suspend fun getByType(@Path("type") type: String): kotlin.Result<List<Test>>

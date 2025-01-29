@@ -10,7 +10,8 @@ sealed class Model {
     data class Answer(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val question: Question,
+        @Serializable(with = UUIDSerializer::class)
+        val questionId: UUID,
         val text: String,
         val isCorrect: Boolean?,
         val personality: String?
@@ -21,7 +22,8 @@ sealed class Model {
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val text: String,
-        val test: Test,
+        @Serializable(with = UUIDSerializer::class)
+        val testId: UUID,
         val order: Int,
     ) : Model()
 
@@ -29,7 +31,8 @@ sealed class Model {
     data class Result(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val test: Test,
+        @Serializable(with = UUIDSerializer::class)
+        val testId: UUID,
         val resultMessage: String,
         val maxPoints: Int?,
         val personality: String?
@@ -46,10 +49,10 @@ sealed class Model {
     data class Test(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val type: String,
+        val testType: String,
         val name: String,
-        val author: User,
-        val theme: Theme,
+        val author: String,
+        val theme: String,
         val description: String,
     ) : Model()
 
@@ -65,13 +68,22 @@ sealed class Model {
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val username: String,
-        val role: Role,
-        val password: String
+        val role: String
     ) : Model()
 
     @Serializable
     data class Authentication(
+        @Serializable(with = UUIDSerializer::class)
         val username: String,
+        val password: String
+    ) : Model()
+
+    @Serializable
+    data class SignUp(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val username: String,
+        val role: String,
         val password: String
     ) : Model()
 }

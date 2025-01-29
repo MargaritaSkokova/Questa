@@ -20,7 +20,7 @@ interface UserApi {
     suspend fun getByName(@Path("name") name: String): kotlin.Result<List<User>>
 
     @POST("user")
-    suspend fun insert(@Body value: User): kotlin.Result<User?>
+    suspend fun insert(@Body value: SignUp): kotlin.Result<User?>
 
     @PUT("user")
     suspend fun update(@Body value: User): kotlin.Result<User?>
@@ -29,5 +29,5 @@ interface UserApi {
     suspend fun delete(@Path("id") id: UUID): kotlin.Result<Any>
 
     @GET("/check")
-    suspend fun check(): kotlin.Result<Any>
+    suspend fun check(): kotlin.Result<String>
 }

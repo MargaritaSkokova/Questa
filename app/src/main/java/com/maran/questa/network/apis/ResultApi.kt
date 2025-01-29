@@ -16,8 +16,8 @@ interface ResultApi {
     @GET("result/{id}")
     suspend fun getById(@Path("id") id: UUID): kotlin.Result<Result?>
 
-    @GET("result/test")
-    suspend fun getByTest(@Body test: Test): kotlin.Result<List<Result>>
+    @GET("result/test/{id}")
+    suspend fun getByTest(@Path("id") id: UUID): kotlin.Result<List<Result>>
 
     @POST("result")
     suspend fun insert(@Body value: Result): kotlin.Result<Result?>
