@@ -61,7 +61,7 @@ fun TestsScreen(
         Column {
             Text(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(16.dp, 32.dp, 16.dp, 16.dp)
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth(),
                 text = stringResource(R.string.tests),
@@ -211,7 +211,7 @@ fun TestElement(
                     textAlign = TextAlign.Center
                 )
                 Button(
-                    onClick = { navController.navigate(route = Screen.Choice.route) },
+                    onClick = { navController.navigate(route = Screen.Choice.route + "?testId=${test.id}" + "?testName=${test.name}"+ "?isPersonality=${test.testType == "Personality test"}")},
                     modifier = modifier
                         .padding(8.dp)
                         .align(Alignment.CenterHorizontally)

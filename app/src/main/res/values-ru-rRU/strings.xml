@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Куеста</string>
+    <string name="app_name">Questa</string>
     <string name="choose_test_button">Выбрать</string>
     <string name="author">Автор</string>
     <string name="theme">Тема</string>
@@ -19,4 +19,5 @@
     <string name="text_field_password_verification_different">Пароли не совпадают</string>
     <string name="password_verification">Пароль еще раз</string>
     <string name="tests">Тесты</string>
+    <string name="error">Произошла ошибка</string>
 </resources>

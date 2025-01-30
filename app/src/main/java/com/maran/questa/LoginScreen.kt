@@ -144,7 +144,9 @@ fun LoginScreen(
                     }
 
                     LoginStatus.SUCCESS -> {
-                        navController.navigate(route = Screen.Tests.route)
+                        navController.navigate(route = Screen.Tests.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
                     }
 
                     else -> {

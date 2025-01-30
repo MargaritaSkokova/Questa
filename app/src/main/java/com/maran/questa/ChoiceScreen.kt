@@ -1,5 +1,8 @@
 package com.maran.questa
 
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -28,6 +31,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,108 +39,155 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.maran.questa.network.models.Model
 import com.maran.questa.ui.theme.QuestaTheme
+import com.maran.questa.viewModels.ChoiceViewModel
+import com.maran.questa.viewModels.QuestionStatus.FAILURE
+import com.maran.questa.viewModels.QuestionStatus.IN_PROCESS
+import com.maran.questa.viewModels.QuestionStatus.NOT_LOADED
+import com.maran.questa.viewModels.QuestionStatus.SUCCESS
+import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.launch
+import java.util.UUID
 
 @Composable
 fun ChoiceScreen(
     modifier: Modifier = Modifier,
-    question: String = "What is the first word in the chorus of `ChkChk Boom`?",
-    choices: List<String> = listOf(
-        "ChkChk",
-        "Boom",
-        "vamos",
-        "lobos",
-        "chaos",
-        "Boom",
-        "vamos",
-        "lobos",
-        "chaos",
-        "Boom",
-        "vamos",
-        "lobos",
-        "chaos"
-    ),
-    numberQuestion: Int = 10,
-    currQuestion: Int = 0,
-    name: String = "Name",
-    navController: NavController
+    navController: NavController,
+    testId: String?,
+    testName: String?,
+    isPersonality: Boolean?,
+    choiceViewModel: ChoiceViewModel = hiltViewModel()
 ) {
+    choiceViewModel.initialize(UUID.fromString(testId), isPersonality!!)
+    val coroutineScope = rememberCoroutineScope()
     val show = remember {
-        mutableStateOf(false)
+        mutableStateOf(choiceViewModel.currChosen.intValue != -1)
     }
     var close by remember {
         mutableStateOf(false)
     }
-    QuestaTheme {
-        Column(modifier = modifier.fillMaxHeight()) {
-            Row(horizontalArrangement = Arrangement.Start) {
-                Row(Modifier.weight(1f)) {
-                    IconButton(onClick = { close = true }) {
-                        Icon(
-                            imageVector = Icons.Rounded.Close,
-                            contentDescription = null
-                        )
-                    }
-                }
-                Text(
-                    modifier = modifier
-                        .padding(8.dp),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    text = name
-                )
-                Spacer(modifier = Modifier.weight(1f))
-            }
-            QuestionElement(text = question)
-            ChoiceList(choices = choices, show = show, modifier = Modifier.weight(1f), isDisabled = close)
+    var leave by remember {
+        mutableStateOf(false)
+    }
 
-            Row(horizontalArrangement = Arrangement.Start) {
-                Row(Modifier.weight(1f)) {
-                    IconButton(onClick = { /*TODO*/ }, enabled = !close) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    var backPressHandled by remember { mutableStateOf(false) }
+    BackHandler(enabled = !backPressHandled) {
+        if (leave) {
+            backPressHandled = true
+            coroutineScope.launch {
+                awaitFrame()
+                onBackPressedDispatcher?.onBackPressed()
+                leave = false
+                close = false
+                backPressHandled = false
+            }
+        }
+        close = !close
+    }
+
+    QuestaTheme {
+        AnimatedContent(
+            targetState = choiceViewModel.questionStatus,
+            label = "animated content"
+        ) { targetStatus ->
+            when (targetStatus) {
+                SUCCESS -> {
+                    Column(modifier = modifier.fillMaxHeight()) {
+                        Row(horizontalArrangement = Arrangement.Start) {
+                            Row(Modifier.weight(1f)) {
+                                IconButton(onClick = { close = true }) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Close,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                            Text(
+                                modifier = modifier
+                                    .padding(8.dp),
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                text = testName ?: ""
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                        QuestionElement(text = choiceViewModel.currQuestion.value?.text ?: "")
+                        ChoiceList(
+                            choices = choiceViewModel.currAnswers.value,
+                            stateIndex = choiceViewModel.currChosen,
+                            show = show,
+                            modifier = Modifier.weight(1f),
+                            isDisabled = close
+                        )
+                        BottomPanel(
+                            modifier,
+                            choiceViewModel::getPrevious,
+                            choiceViewModel::getNext,
+                            close,
+                            choiceViewModel.isPrevious,
+                            choiceViewModel.currNumber,
+                            choiceViewModel.numberQuestions,
+                            show
+                        )
+
+                    }
+
+                }
+
+                NOT_LOADED -> TODO()
+                IN_PROCESS -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            modifier = modifier
+                                .padding(8.dp),
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            text = testName ?: ""
+                        )
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .width(64.dp)
+                                .padding(8.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
                         )
                     }
                 }
-                Text(
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically),
-                    text = "$currQuestion of $numberQuestion",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center
-                )
-                if (!show.value) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-                AnimatedVisibility(
-                    visible = show.value,
-                    modifier = Modifier.weight(1f),
-                    enter = scaleIn()
-                ) {
-                    Row(Modifier.weight(1f), horizontalArrangement = Arrangement.End) {
-                        IconButton(onClick = { /*TODO*/ }, enabled = !close) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = null
-                            )
-                        }
+                FAILURE -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            modifier = modifier
+                                .padding(8.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            text = stringResource(R.string.error)
+                        )
                     }
                 }
             }
@@ -145,10 +196,10 @@ fun ChoiceScreen(
             visible = close,
             enter = fadeIn(),
             exit = fadeOut()
-        )  {
+        ) {
             Box(modifier = modifier.fillMaxSize()) {
                 Column(
-                    modifier = modifier
+                    modifier = Modifier
                         .padding(4.dp)
                         .padding(horizontal = 10.dp)
                         .width(250.dp)
@@ -158,7 +209,7 @@ fun ChoiceScreen(
                         .align(Alignment.Center)
                 ) {
                     Text(
-                        modifier = modifier.padding(8.dp),
+                        modifier = Modifier.padding(16.dp),
                         text = stringResource(id = R.string.close_message),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyMedium,
@@ -166,16 +217,74 @@ fun ChoiceScreen(
                         color = MaterialTheme.colorScheme.onPrimaryContainer
 
                     )
-                    Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()) {
-                        Button(onClick = { /*TODO*/ }, modifier = modifier.wrapContentSize()) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly, modifier = modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    ) {
+                        Button(
+                            onClick = { leave = true; onBackPressedDispatcher?.onBackPressed() },
+                            modifier = Modifier.wrapContentSize()
+                        ) {
                             Text(text = stringResource(id = R.string.yes))
                         }
-                        Button(onClick = { close = false }, modifier = modifier.wrapContentSize()) {
+                        Button(onClick = { close = false }, modifier = Modifier.wrapContentSize()) {
                             Text(text = stringResource(id = R.string.no))
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun BottomPanel(
+    modifier: Modifier = Modifier,
+    backRowAction: () -> Unit,
+    nextRowAction: () -> Unit,
+    close: Boolean,
+    isPrevious: MutableState<Boolean>,
+    currNumber: MutableIntState,
+    numberQuestions: Int,
+    show: MutableState<Boolean>,
+
+    ) {
+    Row(horizontalArrangement = Arrangement.Start) {
+        Row(Modifier.weight(1f)) {
+            IconButton(
+                onClick = { backRowAction() },
+                enabled = !close && isPrevious.value
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+        Text(
+            modifier = Modifier
+                .weight(1f)
+                .align(Alignment.CenterVertically),
+            text = "${currNumber.intValue} of $numberQuestions",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center
+        )
+        if (!show.value) {
+            Spacer(modifier = Modifier.weight(1f))
+        }
+        AnimatedVisibility(
+            visible = show.value,
+            modifier = Modifier.weight(1f),
+            enter = scaleIn()
+        ) {
+            Row(Modifier.weight(1f), horizontalArrangement = Arrangement.End) {
+                IconButton(onClick = { nextRowAction() }, enabled = !close) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null
+                    )
                 }
             }
         }
@@ -198,11 +307,11 @@ fun QuestionElement(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(8.dp),
+                .padding(16.dp),
             fontSize = 28.sp
         )
     }
@@ -261,12 +370,13 @@ fun ChoiceElement(
 @Composable
 fun ChoiceList(
     modifier: Modifier = Modifier,
-    choices: List<String>,
+    choices: List<Model.Answer>,
     show: MutableState<Boolean>,
-    isDisabled: Boolean
+    isDisabled: Boolean,
+    stateIndex: MutableIntState
 ) {
     val state = remember {
-        mutableStateOf(-1)
+        stateIndex
     }
     Column(modifier = modifier) {
         LazyColumn(
@@ -277,7 +387,13 @@ fun ChoiceList(
             userScrollEnabled = !isDisabled
         ) {
             itemsIndexed(choices) { index, item ->
-                ChoiceElement(text = item, selected = state, index = index, show = show, isDisabled = isDisabled)
+                ChoiceElement(
+                    text = item.text,
+                    selected = state,
+                    index = index,
+                    show = show,
+                    isDisabled = isDisabled
+                )
             }
         }
     }
