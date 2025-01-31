@@ -94,18 +94,12 @@ fun TestsScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .width(64.dp)
-                                    .padding(8.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
+                            Loading()
                         }
                     }
 
                     TestStatus.FAILURE -> {
-                        // todo
+                        FailureMessage(modifier)
                     }
 
                     else -> {
@@ -211,7 +205,7 @@ fun TestElement(
                     textAlign = TextAlign.Center
                 )
                 Button(
-                    onClick = { navController.navigate(route = Screen.Choice.route + "?testId=${test.id}" + "?testName=${test.name}"+ "?isPersonality=${test.testType == "Personality test"}")},
+                    onClick = { navController.navigate(route = Screen.Choice.route + "?testId=${test.id}" + "?testName=${test.name}" + "?isPersonality=${test.testType == "Personality test"}") },
                     modifier = modifier
                         .padding(8.dp)
                         .align(Alignment.CenterHorizontally)

@@ -6,7 +6,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -60,7 +59,6 @@ import com.maran.questa.ui.theme.QuestaTheme
 import com.maran.questa.viewModels.ChoiceViewModel
 import com.maran.questa.viewModels.QuestionStatus.FAILURE
 import com.maran.questa.viewModels.QuestionStatus.IN_PROCESS
-import com.maran.questa.viewModels.QuestionStatus.NOT_LOADED
 import com.maran.questa.viewModels.QuestionStatus.SUCCESS
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
@@ -77,9 +75,6 @@ fun ChoiceScreen(
 ) {
     choiceViewModel.initialize(UUID.fromString(testId), isPersonality!!)
     val coroutineScope = rememberCoroutineScope()
-    val show = remember {
-        mutableStateOf(choiceViewModel.currChosen.intValue != -1)
-    }
     var close by remember {
         mutableStateOf(false)
     }
@@ -133,7 +128,7 @@ fun ChoiceScreen(
                         ChoiceList(
                             choices = choiceViewModel.currAnswers.value,
                             stateIndex = choiceViewModel.currChosen,
-                            show = show,
+                            show = choiceViewModel.show,
                             modifier = Modifier.weight(1f),
                             isDisabled = close
                         )
@@ -145,14 +140,13 @@ fun ChoiceScreen(
                             choiceViewModel.isPrevious,
                             choiceViewModel.currNumber,
                             choiceViewModel.numberQuestions,
-                            show
+                            choiceViewModel.show
                         )
 
                     }
 
                 }
 
-                NOT_LOADED -> TODO()
                 IN_PROCESS -> {
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -166,29 +160,12 @@ fun ChoiceScreen(
                             color = MaterialTheme.colorScheme.onSurface,
                             text = testName ?: ""
                         )
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .width(64.dp)
-                                .padding(8.dp),
-                            color = MaterialTheme.colorScheme.secondary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                        )
+                        Loading()
                     }
                 }
+
                 FAILURE -> {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            modifier = modifier
-                                .padding(8.dp),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            text = stringResource(R.string.error)
-                        )
-                    }
+                    FailureMessage(modifier)
                 }
             }
         }
@@ -239,6 +216,34 @@ fun ChoiceScreen(
 }
 
 @Composable
+fun FailureMessage(modifier: Modifier = Modifier) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            modifier = modifier
+                .padding(8.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.error,
+            text = stringResource(R.string.error)
+        )
+    }
+}
+
+@Composable
+fun Loading() {
+    CircularProgressIndicator(
+        modifier = Modifier
+            .width(64.dp)
+            .padding(8.dp),
+        color = MaterialTheme.colorScheme.secondary,
+        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+    )
+}
+
+@Composable
 fun BottomPanel(
     modifier: Modifier = Modifier,
     backRowAction: () -> Unit,
@@ -262,29 +267,39 @@ fun BottomPanel(
                 )
             }
         }
-        Text(
-            modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically),
-            text = "${currNumber.intValue} of $numberQuestions",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center
-        )
-        if (!show.value) {
-            Spacer(modifier = Modifier.weight(1f))
+        AnimatedContent(
+            targetState = currNumber,
+            label = "animated content"
+        ) { targetNumber ->
+            Text(
+                modifier = Modifier
+                    .weight(1f)
+                    .align(Alignment.CenterVertically),
+                text = "${targetNumber.intValue} of $numberQuestions",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
+            )
         }
-        AnimatedVisibility(
-            visible = show.value,
-            modifier = Modifier.weight(1f),
-            enter = scaleIn()
-        ) {
-            Row(Modifier.weight(1f), horizontalArrangement = Arrangement.End) {
-                IconButton(onClick = { nextRowAction() }, enabled = !close) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = null
-                    )
+        AnimatedContent(
+            targetState = show.value,
+            label = "animated content",
+            modifier = Modifier.weight(1f)
+        ) { targetValue ->
+            when (targetValue) {
+                true -> {
+                    Row(Modifier.weight(1f), horizontalArrangement = Arrangement.End) {
+                        IconButton(onClick = { nextRowAction() }, enabled = !close) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = null
+                            )
+                        }
+                    }
+                }
+
+                false -> {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
@@ -350,7 +365,7 @@ fun ChoiceElement(
                 },
                 modifier = modifier
                     .align(Alignment.CenterVertically)
-                    .padding(8.dp),
+                    .padding(4.dp),
                 colors = RadioButtonDefaults.colors(
                     selectedColor = MaterialTheme.colorScheme.tertiary,
                     unselectedColor = MaterialTheme.colorScheme.secondary
@@ -360,7 +375,9 @@ fun ChoiceElement(
                 text,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = modifier.align(Alignment.CenterVertically),
+                modifier = modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(8.dp),
                 fontSize = 20.sp
             )
         }
