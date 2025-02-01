@@ -136,10 +136,10 @@ fun ChoiceScreen(
                         BottomPanel(
                             modifier,
                             choiceViewModel::getPrevious,
-                            if (choiceViewModel.currNumber.intValue == choiceViewModel.numberQuestions) {
+                            if (choiceViewModel.currNumber.intValue != choiceViewModel.numberQuestions) {
                                 choiceViewModel::getNext
                             } else {
-                                {navController.navigate(route = Screen.Result.route + "?testId=${testId}" + "?testName=${testName}" + "?isPersonality=${isPersonality}"+ "?personality=${choiceViewModel.getPersonality()}"+ "?score=${choiceViewModel.getScore()}")}
+                                { navController.navigate(route = Screen.Result.route + "?testId=${testId}" + "?testName=${testName}" + "?isPersonality=${isPersonality}" + "?personality=${choiceViewModel.getPersonality()}" + "?score=${choiceViewModel.getScore()}") }
                             },
                             close,
                             choiceViewModel.isPrevious,
@@ -170,7 +170,27 @@ fun ChoiceScreen(
                 }
 
                 FAILURE -> {
-                    FailureMessage(modifier)
+                    Column(modifier = modifier.fillMaxHeight()) {
+                        Row(horizontalArrangement = Arrangement.Start) {
+                            Row(Modifier.weight(1f)) {
+                                IconButton(onClick = { close = true }) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Close,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                            Text(
+                                modifier = modifier
+                                    .padding(8.dp),
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                text = testName
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                        FailureMessage(modifier)
+                    }
                 }
             }
         }

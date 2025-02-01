@@ -24,4 +24,5 @@
     <string name="retake">Перепройти</string>
     <string name="back_to_tests">К тестам</string>
     <string name="not_found_result">О нет! Произошла ошибка и мы не нашли твою личность. Не переживай, твоя настоящая личность все еще важна для нас!</string>
+    <string name="calculating_result">Подсчитываем ваш результат…</string>
 </resources>

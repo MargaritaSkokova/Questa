@@ -66,7 +66,7 @@ fun NavigationStack(modifier: Modifier = Modifier) {
                 },
                 navArgument("score") {
                     type = NavType.IntType
-                    nullable = true
+                    nullable = false
                 }
             )) {
 

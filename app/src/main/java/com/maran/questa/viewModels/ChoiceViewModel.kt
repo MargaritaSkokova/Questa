@@ -200,11 +200,11 @@ class ChoiceViewModel @Inject constructor(
         }
     }
 
-    fun getScore(): Int? {
+    fun getScore(): Int {
         return if (isPersonality) {
             (countCorrect / numberQuestions) * 100
         } else {
-            null
+            0
         }
     }
 

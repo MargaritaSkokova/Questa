@@ -124,18 +124,20 @@ fun ResultScreen(
                 }
 
                 ResultState.NOT_FOUND -> {
-                    NotFound()
-                    Buttons(
-                        {
-                            navController.navigate(route = Screen.Choice.route + "?testId=${testId}" + "?testName=${testName}" + "?isPersonality=${isPersonality}") {
-                                popUpTo(Screen.Tests.route) { inclusive = true }
-                            }
-                        },
-                        {
-                            navController.navigate(route = Screen.Tests.route) {
-                                popUpTo(Screen.Tests.route) { inclusive = true }
-                            }
-                        })
+                    Column {
+                        NotFound()
+                        Buttons(
+                            {
+                                navController.navigate(route = Screen.Choice.route + "?testId=${testId}" + "?testName=${testName}" + "?isPersonality=${isPersonality}") {
+                                    popUpTo(Screen.Tests.route) { inclusive = true }
+                                }
+                            },
+                            {
+                                navController.navigate(route = Screen.Tests.route) {
+                                    popUpTo(Screen.Tests.route) { inclusive = true }
+                                }
+                            })
+                    }
                 }
 
                 ResultState.IN_PROCESS -> {
@@ -144,6 +146,13 @@ fun ResultScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
+                        Text(
+                            modifier = modifier
+                                .padding(8.dp),
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            text = stringResource(R.string.calculating_result)
+                        )
                         Loading()
                     }
                 }
@@ -160,7 +169,7 @@ fun TestName(modifier: Modifier = Modifier, testName: String) {
     ) {
         Text(
             modifier = Modifier
-                .padding(8.dp),
+                .padding(24.dp),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onSurface,
             text = testName
