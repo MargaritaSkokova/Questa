@@ -10,7 +10,6 @@ import com.maran.questa.dependencyInjection.PreferencesProvider
 import com.maran.questa.network.RetrofitClient
 import com.maran.questa.network.apis.AnswerApi
 import com.maran.questa.network.apis.QuestionApi
-import com.maran.questa.network.apis.ResultApi
 import com.maran.questa.network.models.Model.Answer
 import com.maran.questa.network.models.Model.Question
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,8 +52,6 @@ class ChoiceViewModel @Inject constructor(
         )
     private val answerApi: AnswerApi = retrofit.create(AnswerApi::class.java)
     private val questionApi: QuestionApi = retrofit.create(QuestionApi::class.java)
-    private val resultApi: ResultApi = retrofit.create(ResultApi::class.java)
-
 
     private var questions: List<Question> = listOf()
     private lateinit var answers: MutableList<Deferred<List<Answer>>?>
@@ -93,7 +90,7 @@ class ChoiceViewModel @Inject constructor(
         }
     }
 
-    fun updateState(question: Question, answers: List<Answer>, number: Int, chosen: Int) {
+    private fun updateState(question: Question, answers: List<Answer>, number: Int, chosen: Int) {
         currQuestion.value = question
         currAnswers.value = answers
         currNumber.intValue = number
@@ -101,50 +98,46 @@ class ChoiceViewModel @Inject constructor(
     }
 
     fun getNext() {
-        if (currNumber.intValue == numberQuestions) {
-            getResults()
-        } else {
-            stack.push(
-                ChoiceState(
-                    currQuestion = currQuestion.value!!,
-                    currNumber = currNumber.intValue,
-                    currChosen = currChosen.intValue,
-                    currAnswers = currAnswers.value
-                )
+        stack.push(
+            ChoiceState(
+                currQuestion = currQuestion.value!!,
+                currNumber = currNumber.intValue,
+                currChosen = currChosen.intValue,
+                currAnswers = currAnswers.value
             )
-            questionStatus = QuestionStatus.IN_PROCESS
-            coroutineScope.launch {
-                show.value = false
-                val answer = answers[currNumber.intValue]?.await()
-                if (answer == null) {
-                    questionStatus = QuestionStatus.FAILURE
-                    return@launch
-                }
-
-                if (isPersonality) {
-                    if (currAnswers.value[currChosen.intValue].personality != null)
-                        personalityCount[currAnswers.value[currChosen.intValue].personality!!] =
-                            personalityCount.getOrDefault(
-                                currAnswers.value[currChosen.intValue].personality,
-                                0
-                            ) + 1
-                } else {
-                    if (currAnswers.value[currChosen.intValue].isCorrect != null && currAnswers.value[currChosen.intValue].isCorrect!!) {
-                        countCorrect ++
-                    }
-                }
-
-                updateState(
-                    question = questions[currNumber.intValue],
-                    answers = answer,
-                    number = currNumber.intValue + 1,
-                    chosen = -1
-                )
-
-                isPrevious.value = currNumber.intValue > 1
-
-                questionStatus = QuestionStatus.SUCCESS
+        )
+        questionStatus = QuestionStatus.IN_PROCESS
+        coroutineScope.launch {
+            show.value = false
+            val answer = answers[currNumber.intValue]?.await()
+            if (answer == null) {
+                questionStatus = QuestionStatus.FAILURE
+                return@launch
             }
+
+            if (isPersonality) {
+                if (currAnswers.value[currChosen.intValue].personality != null)
+                    personalityCount[currAnswers.value[currChosen.intValue].personality!!] =
+                        personalityCount.getOrDefault(
+                            currAnswers.value[currChosen.intValue].personality,
+                            0
+                        ) + 1
+            } else {
+                if (currAnswers.value[currChosen.intValue].isCorrect != null && currAnswers.value[currChosen.intValue].isCorrect!!) {
+                    countCorrect++
+                }
+            }
+
+            updateState(
+                question = questions[currNumber.intValue],
+                answers = answer,
+                number = currNumber.intValue + 1,
+                chosen = -1
+            )
+
+            isPrevious.value = currNumber.intValue > 1
+
+            questionStatus = QuestionStatus.SUCCESS
         }
     }
 
@@ -161,7 +154,7 @@ class ChoiceViewModel @Inject constructor(
                         ) - 1
             } else {
                 if (state.currAnswers[state.currChosen].isCorrect != null && state.currAnswers[state.currChosen].isCorrect!!) {
-                    countCorrect --
+                    countCorrect--
                 }
             }
 
@@ -177,20 +170,41 @@ class ChoiceViewModel @Inject constructor(
         }
     }
 
-    fun getResults() {
-        TODO()
-    }
-
-    suspend fun getAllQuestions(testId: UUID): List<Question> {
+    private suspend fun getAllQuestions(testId: UUID): List<Question> {
         questionStatus = QuestionStatus.IN_PROCESS
         return coroutineScope.async {
             questionApi.getByTest(testId).getOrDefault(listOf())
         }.await()
     }
 
-    fun getAnswers(id: UUID): Deferred<List<Answer>> {
+    private fun getAnswers(id: UUID): Deferred<List<Answer>> {
         return coroutineScope.async {
             answerApi.getByQuestion(id).getOrDefault(listOf())
+        }
+    }
+
+    fun getPersonality(): String? {
+        if (isPersonality) {
+            var max = 0
+            var maxPersonality = ""
+            for (personality in personalityCount) {
+                if (personality.value > max) {
+                    max = personality.value
+                    maxPersonality = personality.key
+                }
+            }
+
+            return maxPersonality
+        } else {
+            return null
+        }
+    }
+
+    fun getScore(): Int? {
+        return if (isPersonality) {
+            (countCorrect / numberQuestions) * 100
+        } else {
+            null
         }
     }
 

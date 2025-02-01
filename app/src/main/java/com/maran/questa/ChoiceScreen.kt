@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.maran.questa.navigation.Screen
 import com.maran.questa.network.models.Model
 import com.maran.questa.ui.theme.QuestaTheme
 import com.maran.questa.viewModels.ChoiceViewModel
@@ -68,12 +69,12 @@ import java.util.UUID
 fun ChoiceScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
-    testId: String?,
-    testName: String?,
-    isPersonality: Boolean?,
+    testId: String,
+    testName: String,
+    isPersonality: Boolean,
     choiceViewModel: ChoiceViewModel = hiltViewModel()
 ) {
-    choiceViewModel.initialize(UUID.fromString(testId), isPersonality!!)
+    choiceViewModel.initialize(UUID.fromString(testId), isPersonality)
     val coroutineScope = rememberCoroutineScope()
     var close by remember {
         mutableStateOf(false)
@@ -120,7 +121,7 @@ fun ChoiceScreen(
                                     .padding(8.dp),
                                 style = MaterialTheme.typography.headlineMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                text = testName ?: ""
+                                text = testName
                             )
                             Spacer(modifier = Modifier.weight(1f))
                         }
@@ -135,7 +136,11 @@ fun ChoiceScreen(
                         BottomPanel(
                             modifier,
                             choiceViewModel::getPrevious,
-                            choiceViewModel::getNext,
+                            if (choiceViewModel.currNumber.intValue == choiceViewModel.numberQuestions) {
+                                choiceViewModel::getNext
+                            } else {
+                                {navController.navigate(route = Screen.Result.route + "?testId=${testId}" + "?testName=${testName}" + "?isPersonality=${isPersonality}"+ "?personality=${choiceViewModel.getPersonality()}"+ "?score=${choiceViewModel.getScore()}")}
+                            },
                             close,
                             choiceViewModel.isPrevious,
                             choiceViewModel.currNumber,
@@ -158,7 +163,7 @@ fun ChoiceScreen(
                                 .padding(8.dp),
                             style = MaterialTheme.typography.headlineMedium,
                             color = MaterialTheme.colorScheme.onSurface,
-                            text = testName ?: ""
+                            text = testName
                         )
                         Loading()
                     }

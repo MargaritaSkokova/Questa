@@ -20,4 +20,8 @@
     <string name="password_verification">Пароль еще раз</string>
     <string name="tests">Тесты</string>
     <string name="error">Произошла ошибка</string>
+    <string name="result">Ваш результат:</string>
+    <string name="retake">Перепройти</string>
+    <string name="back_to_tests">К тестам</string>
+    <string name="not_found_result">О нет! Произошла ошибка и мы не нашли твою личность. Не переживай, твоя настоящая личность все еще важна для нас!</string>
 </resources>

@@ -19,4 +19,8 @@
     <string name="password_verification">Password again</string>
     <string name="tests">Tests</string>
     <string name="error">Error occurred</string>
+    <string name="result">Your result is:</string>
+    <string name="retake">Retake</string>
+    <string name="back_to_tests">To tests</string>
+    <string name="not_found_result">Oh no! Some error occurred and you didn\'t get personality. Don\'t worry, your real personality is still important!</string>
 </resources>
