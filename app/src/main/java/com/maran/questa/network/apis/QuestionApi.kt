@@ -26,5 +26,5 @@ interface QuestionApi {
     suspend fun update(@Body value: Question): kotlin.Result<Question?>
 
     @DELETE("question/{id}")
-    suspend fun delete(@Path("id") id: UUID): kotlin.Result<Any>
+    suspend fun delete(@Path("id") id: UUID): kotlin.Result<String?>
 }

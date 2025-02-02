@@ -115,18 +115,7 @@ class ChoiceViewModel @Inject constructor(
                 return@launch
             }
 
-            if (isPersonality) {
-                if (currAnswers.value[currChosen.intValue].personality != null)
-                    personalityCount[currAnswers.value[currChosen.intValue].personality!!] =
-                        personalityCount.getOrDefault(
-                            currAnswers.value[currChosen.intValue].personality,
-                            0
-                        ) + 1
-            } else {
-                if (currAnswers.value[currChosen.intValue].isCorrect != null && currAnswers.value[currChosen.intValue].isCorrect!!) {
-                    countCorrect++
-                }
-            }
+            computePersonality()
 
             updateState(
                 question = questions[currNumber.intValue],
@@ -138,6 +127,21 @@ class ChoiceViewModel @Inject constructor(
             isPrevious.value = currNumber.intValue > 1
 
             questionStatus = QuestionStatus.SUCCESS
+        }
+    }
+
+    fun computePersonality() {
+        if (isPersonality) {
+            if (currAnswers.value[currChosen.intValue].personality != null)
+                personalityCount[currAnswers.value[currChosen.intValue].personality!!] =
+                    personalityCount.getOrDefault(
+                        currAnswers.value[currChosen.intValue].personality,
+                        0
+                    ) + 1
+        } else {
+            if (currAnswers.value[currChosen.intValue].isCorrect != null && currAnswers.value[currChosen.intValue].isCorrect!!) {
+                countCorrect++
+            }
         }
     }
 

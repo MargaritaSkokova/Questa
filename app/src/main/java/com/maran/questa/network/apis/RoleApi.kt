@@ -26,5 +26,5 @@ interface RoleApi {
     suspend fun update(@Body value: Role): kotlin.Result<Role?>
 
     @DELETE("role/{id}")
-    suspend fun delete(@Path("id") id: UUID): kotlin.Result<Any>
+    suspend fun delete(@Path("id") id: UUID): kotlin.Result<String?>
 }

@@ -27,6 +27,12 @@ enum class VerificationError {
     CORRECT
 }
 
+enum class PasswordError {
+    EMPTY,
+    NOT_MATCH,
+    CORRECT
+}
+
 enum class LoginStatus {
     NOT_LOGGED,
     IN_PROCESS,
@@ -44,6 +50,7 @@ class LoginViewModel @Inject constructor(
     private lateinit var securityService: SecurityApi
     private lateinit var userService: UserApi
     private lateinit var roleService: RoleApi
+    private val regex = "^(?=.*[A-Za-z])(?=.*d)[A-Za-zd]{8,}$".toRegex()
 
     var username by mutableStateOf("")
         private set
@@ -79,8 +86,8 @@ class LoginViewModel @Inject constructor(
         isErrorUsername = text.isEmpty()
     }
 
-    fun validatePassword(text: CharSequence) {
-        isErrorPassword = text.isEmpty()
+    fun validatePassword(text: CharSequence, isSignUp: Boolean) {
+        isErrorPassword = text.isEmpty() || (!isSignUp || regex.matches(text))
     }
 
     fun validatePasswordSignUp(passwordText: CharSequence, passwordVerification: CharSequence) {
@@ -89,13 +96,23 @@ class LoginViewModel @Inject constructor(
     }
 
     fun getVerificationError(): VerificationError {
-        if (passwordVerification.isEmpty()) {
-            return VerificationError.EMPTY
+        return if (passwordVerification.isEmpty()) {
+            VerificationError.EMPTY
         } else if (passwordVerification != password) {
-            return VerificationError.DIFFERENT
+            VerificationError.DIFFERENT
+        } else {
+            VerificationError.CORRECT
         }
+    }
 
-        return VerificationError.CORRECT
+    fun getPasswordError(): PasswordError {
+        return if (password.isEmpty()) {
+            PasswordError.EMPTY
+        } else if (!regex.matches(password)) {
+            PasswordError.NOT_MATCH
+        } else {
+            PasswordError.NOT_MATCH
+        }
     }
 
     init {
@@ -130,7 +147,7 @@ class LoginViewModel @Inject constructor(
             loginStatus = LoginStatus.IN_PROCESS
             userService.insert(Model.SignUp(UUID.randomUUID(), username, "basic", password))
                 .onSuccess {
-                    loginStatus = LoginStatus.SUCCESS
+                    login()
                 }
                 .onFailure {
                     loginStatus = LoginStatus.FAILURE

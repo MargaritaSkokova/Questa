@@ -14,6 +14,7 @@
     <string name="error_login">Error occurred, please, try again!</string>
     <string name="text_field_username_empty">Enter username</string>
     <string name="text_field_password_empty">Enter password</string>
+    <string name="text_field_password_not_match">Password must contain minimum eight characters, at least one letter and one number</string>
     <string name="text_field_password_verification_empty">Enter password again</string>
     <string name="text_field_password_verification_different">Passwords are not equal</string>
     <string name="password_verification">Password again</string>

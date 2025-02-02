@@ -139,7 +139,7 @@ fun ChoiceScreen(
                             if (choiceViewModel.currNumber.intValue != choiceViewModel.numberQuestions) {
                                 choiceViewModel::getNext
                             } else {
-                                { navController.navigate(route = Screen.Result.route + "?testId=${testId}" + "?testName=${testName}" + "?isPersonality=${isPersonality}" + "?personality=${choiceViewModel.getPersonality()}" + "?score=${choiceViewModel.getScore()}") }
+                                { choiceViewModel.computePersonality(); navController.navigate(route = Screen.Result.route + "?testId=${testId}" + "?testName=${testName}" + "?isPersonality=${isPersonality}" + "?personality=${choiceViewModel.getPersonality()}" + "?score=${choiceViewModel.getScore()}") }
                             },
                             close,
                             choiceViewModel.isPrevious,

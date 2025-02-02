@@ -1,6 +1,7 @@
 package com.maran.questa
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,9 +23,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +46,10 @@ import com.maran.questa.navigation.Screen
 import com.maran.questa.ui.theme.QuestaTheme
 import com.maran.questa.viewModels.LoginStatus
 import com.maran.questa.viewModels.LoginViewModel
+import com.maran.questa.viewModels.PasswordError
 import com.maran.questa.viewModels.VerificationError
+import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -54,13 +60,19 @@ fun LoginScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    val showButtons = remember { mutableStateOf(true) }
+    var showButtons by remember { mutableStateOf(true) }
     val showSignIn = remember { mutableStateOf(false) }
     val showSignUp = remember { mutableStateOf(false) }
     val (passwordVisible, setPasswordVisible) = remember { mutableStateOf(false) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_START) {
         loginViewModel.check()
+    }
+
+    BackHandler(enabled = !showButtons) {
+        showButtons = true
+        showSignUp.value = false
+        showSignIn.value = false
     }
 
     QuestaTheme {
@@ -88,7 +100,7 @@ fun LoginScreen(
             ) { targetStatus ->
                 when (targetStatus) {
                     LoginStatus.NOT_LOGGED -> {
-                        if (showButtons.value) {
+                        if (showButtons) {
                             Column(
                                 modifier = Modifier
                                     .wrapContentSize(),
@@ -97,7 +109,7 @@ fun LoginScreen(
                             ) {
                                 Button(
                                     onClick = {
-                                        showButtons.value = false; showSignIn.value = true
+                                        showButtons = false; showSignIn.value = true
                                     },
                                     modifier = Modifier
                                         .padding(8.dp)
@@ -110,7 +122,7 @@ fun LoginScreen(
                                 }
                                 Button(
                                     onClick = {
-                                        showButtons.value = false; showSignUp.value = true
+                                        showButtons = false; showSignUp.value = true
                                     },
                                     modifier = Modifier
                                         .wrapContentSize()
@@ -223,7 +235,7 @@ fun LoginFields(
             value = loginViewModel.password,
             onValueChange = { password ->
                 loginViewModel.updatePassword(password); loginViewModel.validatePassword(
-                password
+                password, showSignIn.value
             )
             },
             label = { Text(stringResource(R.string.password)) },
@@ -244,7 +256,15 @@ fun LoginFields(
             supportingText = {
                 Row {
                     Text(
-                        if (loginViewModel.isErrorPassword) stringResource(R.string.text_field_password_empty) else "",
+                        if (loginViewModel.isErrorPassword) {
+                            when (loginViewModel.getPasswordError()) {
+                                PasswordError.EMPTY -> stringResource(R.string.text_field_password_empty)
+                                PasswordError.NOT_MATCH -> stringResource(R.string.text_field_password_not_match)
+                                else -> ""
+                            }
+                        } else {
+                            ""
+                        },
                         Modifier.clearAndSetSemantics {})
                     Spacer(Modifier.weight(1f))
                 }
@@ -273,18 +293,16 @@ fun LoginFields(
                 },
                 label = { Text(stringResource(R.string.password_verification)) },
                 maxLines = 1,
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 supportingText = {
                     Row {
                         Text(
                             if (loginViewModel.isErrorPasswordVerification) {
-                                if (loginViewModel.getVerificationError() == VerificationError.EMPTY) {
-                                    stringResource(R.string.text_field_password_verification_empty)
-                                } else if (loginViewModel.getVerificationError() == VerificationError.DIFFERENT) {
-                                    stringResource(R.string.text_field_password_verification_different)
-                                } else {
-                                    ""
+                                when (loginViewModel.getVerificationError()) {
+                                    VerificationError.EMPTY -> stringResource(R.string.text_field_password_verification_empty)
+                                    VerificationError.DIFFERENT -> stringResource(R.string.text_field_password_verification_different)
+                                    else -> ""
                                 }
                             } else {
                                 ""

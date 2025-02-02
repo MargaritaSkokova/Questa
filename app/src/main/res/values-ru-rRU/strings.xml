@@ -15,6 +15,7 @@
     <string name="error_login">Произошла ошибка, попробуйте снова!</string>
     <string name="text_field_username_empty">Введите имя пользователя</string>
     <string name="text_field_password_empty">Введите пароль</string>
+    <string name="text_field_password_not_match">Пароль должен содержать минимум 8 символов, минимум одну букву латинского алфавита и минимум одну цифру</string>
     <string name="text_field_password_verification_empty">Введите пароль</string>
     <string name="text_field_password_verification_different">Пароли не совпадают</string>
     <string name="password_verification">Пароль еще раз</string>

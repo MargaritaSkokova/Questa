@@ -26,5 +26,5 @@ interface ThemeApi {
     suspend fun update(@Body value: Theme): kotlin.Result<Theme?>
 
     @DELETE("theme/{id}")
-    suspend fun delete(@Path("id") id: UUID): kotlin.Result<Any>
+    suspend fun delete(@Path("id") id: UUID): kotlin.Result<String?>
 }

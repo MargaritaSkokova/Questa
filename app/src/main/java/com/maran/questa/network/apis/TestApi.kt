@@ -32,5 +32,5 @@ interface TestApi {
     suspend fun update(@Body value: Test): kotlin.Result<Test?>
 
     @DELETE("test/{id}")
-    suspend fun delete(@Path("id") id: UUID): kotlin.Result<Any>
+    suspend fun delete(@Path("id") id: UUID): kotlin.Result<String?>
 }

@@ -20,13 +20,13 @@ interface UserApi {
     suspend fun getByName(@Path("name") name: String): kotlin.Result<List<User>>
 
     @POST("user")
-    suspend fun insert(@Body value: SignUp): kotlin.Result<User?>
+    suspend fun insert(@Body value: SignUp): kotlin.Result<String?>
 
     @PUT("user")
     suspend fun update(@Body value: User): kotlin.Result<User?>
 
     @DELETE("user/{id}")
-    suspend fun delete(@Path("id") id: UUID): kotlin.Result<Any>
+    suspend fun delete(@Path("id") id: UUID): kotlin.Result<String?>
 
     @GET("/check")
     suspend fun check(): kotlin.Result<String>
